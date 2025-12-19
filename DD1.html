@@ -541,104 +541,81 @@
             width: 100%;
             height: 100%;
             pointer-events: none;
-            z-index: 999;
-            overflow: hidden;
+            z-index: 9999;
+            overflow: visible;
         }
 
         .firework-particle {
             position: absolute;
-            width: 4px;
-            height: 4px;
             border-radius: 50%;
             pointer-events: none;
-            box-shadow: 0 0 10px currentColor;
+            z-index: 9999;
         }
 
-        /* 霓虹燈勝利畫面樣式 */
+        /* ========== 新的勝利畫面樣式 - 保留原有遊戲功能 ========== */
         .victory-modal {
-            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            background: #ffffff; /* 純白色背景 */
             border: 3px solid #3498db;
-            color: white;
-            animation: victory-neon-border 2s infinite alternate, victory-glow 3s infinite;
+            color: #2c3e50;
+            animation: victory-neon-border 2s infinite alternate;
             backdrop-filter: blur(10px);
             border-radius: 20px;
             padding: 30px;
-            z-index: 1001;
+            z-index: 10001;
             min-width: 300px;
             max-width: 90%;
             text-align: center;
             overflow: hidden;
-            box-shadow: 0 0 30px rgba(52, 152, 219, 0.7), 0 0 60px rgba(52, 152, 219, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             position: relative;
         }
 
-        .victory-modal::before {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
-            background-size: 400%;
-            border-radius: 22px;
-            z-index: -1;
-            animation: victory-neon-border 3s linear infinite;
-            filter: blur(5px);
-            opacity: 0.7;
-        }
-
+        /* 霓虹燈邊框動畫 - 從Victor.html移植但簡化 */
         @keyframes victory-neon-border {
             0% {
-                box-shadow: 0 0 10px #3498db, 0 0 20px #3498db, 0 0 30px #3498db;
-                border-color: #3498db;
-            }
-            50% {
-                box-shadow: 0 0 20px #00ff00, 0 0 30px #00ff00, 0 0 40px #00ff00;
-                border-color: #00ff00;
-            }
-            100% {
                 box-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff, 0 0 30px #ff00ff;
                 border-color: #ff00ff;
             }
-        }
-
-        @keyframes victory-glow {
-            0%, 100% {
-                box-shadow: 0 0 20px rgba(52, 152, 219, 0.7);
+            25% {
+                box-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff;
+                border-color: #00ffff;
             }
             50% {
-                box-shadow: 0 0 40px rgba(52, 152, 219, 0.9);
+                box-shadow: 0 0 10px #ffff00, 0 0 20px #ffff00, 0 0 30px #ffff00;
+                border-color: #ffff00;
+            }
+            75% {
+                box-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00;
+                border-color: #00ff00;
+            }
+            100% {
+                box-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 30px #ff0000;
+                border-color: #ff0000;
             }
         }
 
+        /* 修正：將標題改為黑色，保留動畫效果 */
         .victory-modal h2 {
             margin-top: 0;
             margin-bottom: 20px;
-            color: #fff;
-            text-shadow: 0 0 10px #3498db, 0 0 20px #3498db, 0 0 30px #3498db;
+            color: #000000 !important; /* 強制使用黑色 */
             font-size: 1.8rem;
-            animation: victory-text-glow 2s infinite alternate;
+            animation: victory-text-pulse 1.5s infinite alternate;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5) !important; /* 白色陰影增加可讀性 */
         }
 
-        @keyframes victory-text-glow {
-            0% {
-                text-shadow: 0 0 10px #3498db, 0 0 20px #3498db;
-                transform: scale(1);
-            }
-            100% {
-                text-shadow: 0 0 20px #00ff00, 0 0 30px #00ff00, 0 0 40px #00ff00;
-                transform: scale(1.05);
-            }
+        @keyframes victory-text-pulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.05); }
         }
 
         .victory-stats {
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 15px;
             padding: 20px;
             margin: 20px 0;
             text-align: left;
-            border: 1px solid rgba(52, 152, 219, 0.5);
+            border: 1px solid rgba(52, 152, 219, 0.3);
             backdrop-filter: blur(5px);
         }
 
@@ -650,14 +627,13 @@
         }
 
         .victory-stat-label {
-            color: #bdc3c7;
+            color: #7f8c8d;
             font-weight: 600;
         }
 
         .victory-stat-value {
-            color: #fff;
+            color: #2c3e50;
             font-weight: bold;
-            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
         }
 
         .victory-buttons {
@@ -681,12 +657,21 @@
             background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
             color: white;
             width: 100%;
-            box-shadow: 0 0 15px rgba(52, 152, 219, 0.7);
         }
 
         .victory-buttons button:hover {
             transform: translateY(-3px);
-            box-shadow: 0 5px 20px rgba(52, 152, 219, 0.8);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        /* 點擊計時器測試功能 */
+        .timer.test-mode {
+            animation: timer-test-flash 0.5s infinite alternate;
+        }
+        
+        @keyframes timer-test-flash {
+            0% { color: var(--primary); }
+            100% { color: #ff0000; }
         }
 
         @media (max-width: 480px) {
@@ -730,6 +715,11 @@
             .victory-modal h2 {
                 font-size: 1.23rem; /* 中文預設大小 */
                 margin-bottom: 15px;
+            }
+            
+            /* 手機英文模式字體調整 */
+            .victory-modal.english-mode h2 {
+                font-size: 0.98rem !important;
             }
             
             .victory-stats {
@@ -786,11 +776,6 @@
                 min-width: 90px;
                 padding: 5px 8px;
             }
-            
-            /* 手機英文模式字體調整 */
-            .victory-modal.english-mode h2 {
-                font-size: 0.98rem !important;
-            }
         }
         
         @media (min-width: 600px) {
@@ -802,16 +787,6 @@
             .victory-modal h2 {
                 font-size: 2.2rem;
             }
-        }
-        
-        /* 點擊計時器快速勝利測試功能 */
-        .timer.test-mode {
-            animation: timer-test-flash 0.5s infinite alternate;
-        }
-        
-        @keyframes timer-test-flash {
-            0% { color: var(--primary); }
-            100% { color: #ff0000; }
         }
     </style>
 </head>
@@ -857,8 +832,10 @@
         <div class="keypad" id="keypad"></div>
     </div>
 
+    <!-- 煙花容器 -->
     <div id="fireworks-container"></div>
 
+    <!-- 勝利畫面 -->
     <div class="overlay" id="victory-overlay">
         <div class="modal victory-modal" id="victory-modal">
             <h2 id="victory-title">🎉 恭喜破關！ 🎉</h2>
@@ -901,6 +878,7 @@
     </div>
 
     <script>
+        // ========== 遊戲核心變數 - 保持不變 ==========
         let board = [];
         let solution = [];
         let initial = [];
@@ -1010,6 +988,7 @@
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         let audioCtx = null;
 
+        // ========== 音效系統 - 保持不變 ==========
         function initAudio() {
             if (!audioCtx) {
                 audioCtx = new AudioContext();
@@ -1123,6 +1102,7 @@
             oscillator.stop(time + duration);
         }
 
+        // ========== 頁面初始化 - 保持不變 ==========
         document.addEventListener('DOMContentLoaded', () => {
             createBoardHTML();
             createKeypadHTML();
@@ -1183,6 +1163,7 @@
             document.getElementById('timer-display').addEventListener('click', handleTimerClick);
         }
 
+        // ========== 遊戲核心功能 - 保持不變 ==========
         // 處理計時器點擊（測試功能）
         function handleTimerClick() {
             const currentTime = Date.now();
@@ -1976,50 +1957,62 @@
         function showVictoryScreen() {
             document.getElementById('victory-overlay').style.display = 'flex';
             
+            // 確保煙花效果正常啟動
             startFireworks();
         }
 
+        // ========== 煙花效果系統 - 確保正常運作 ==========
         function startFireworks() {
+            console.log("開始煙火效果");
+            
             const container = document.getElementById('fireworks-container');
+            if (!container) {
+                console.error("找不到煙花容器!");
+                return;
+            }
+            
             container.innerHTML = '';
             
             fireworksActive = true;
             
-            const fireworkCount = 25;
+            const fireworkCount = 30;
             const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ff6600', '#ff0099', '#ff1493', '#00ff7f', '#ff4500', '#da70d6'];
             
             let created = 0;
             fireworksInterval = setInterval(() => {
                 if (created >= fireworkCount) {
                     clearInterval(fireworksInterval);
+                    fireworksInterval = null;
                     return;
                 }
                 
-                createFirework(
-                    Math.random() * window.innerWidth,
-                    window.innerHeight,
-                    colors[Math.floor(Math.random() * colors.length)]
-                );
+                const x = Math.random() * window.innerWidth;
+                const y = window.innerHeight + 50;
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                
+                createFirework(x, y, color);
                 
                 created++;
-            }, 200);
+            }, 150);
         }
 
         function createFirework(x, y, color) {
             const container = document.getElementById('fireworks-container');
+            if (!container) return;
             
             const core = document.createElement('div');
             core.className = 'firework-particle';
             core.style.left = x + 'px';
             core.style.top = y + 'px';
             core.style.backgroundColor = color;
-            core.style.width = '8px';
-            core.style.height = '8px';
-            core.style.boxShadow = `0 0 20px ${color}`;
+            core.style.width = '12px';
+            core.style.height = '12px';
+            core.style.boxShadow = `0 0 30px ${color}, 0 0 60px ${color}`;
+            core.style.zIndex = '9999';
             container.appendChild(core);
             
-            const riseDuration = 1000;
-            const targetY = Math.random() * (window.innerHeight * 0.4) + (window.innerHeight * 0.1);
+            const riseDuration = 1200;
+            const targetY = Math.random() * (window.innerHeight * 0.5) + (window.innerHeight * 0.2);
             
             let startTime = null;
             
@@ -2030,17 +2023,22 @@
                 
                 const easeOutCubic = 1 - Math.pow(1 - progress, 3);
                 
-                core.style.top = (y - (targetY - y) * easeOutCubic) + 'px';
+                const newY = y - (targetY - y) * easeOutCubic;
+                core.style.top = newY + 'px';
+                
+                // 調整大小和陰影
+                const size = 12 * (1 + easeOutCubic * 0.5);
+                core.style.width = size + 'px';
+                core.style.height = size + 'px';
+                core.style.boxShadow = `0 0 ${30 + easeOutCubic * 30}px ${color}, 0 0 ${60 + easeOutCubic * 40}px ${color}`;
                 
                 if (progress < 1) {
                     requestAnimationFrame(riseAnimation);
                 } else {
-                    explodeFirework(
-                        parseFloat(core.style.left),
-                        parseFloat(core.style.top),
-                        color
-                    );
-                    container.removeChild(core);
+                    explodeFirework(x, newY, color);
+                    if (core.parentNode) {
+                        container.removeChild(core);
+                    }
                 }
             }
             
@@ -2049,7 +2047,9 @@
 
         function explodeFirework(x, y, color) {
             const container = document.getElementById('fireworks-container');
-            const particleCount = 100;
+            if (!container) return;
+            
+            const particleCount = 150;
             const particles = [];
             
             for (let i = 0; i < particleCount; i++) {
@@ -2058,20 +2058,23 @@
                 particle.style.left = x + 'px';
                 particle.style.top = y + 'px';
                 particle.style.backgroundColor = color;
-                particle.style.width = '6px';
-                particle.style.height = '6px';
-                particle.style.boxShadow = `0 0 15px ${color}`;
+                particle.style.width = '10px';
+                particle.style.height = '10px';
+                particle.style.boxShadow = `0 0 25px ${color}, 0 0 50px ${color}`;
+                particle.style.zIndex = '9999';
+                particle.style.opacity = '1';
                 container.appendChild(particle);
                 
                 const angle = (i / particleCount) * Math.PI * 2;
-                const speed = 3 + Math.random() * 4;
+                const speed = 4 + Math.random() * 5;
                 
                 particles.push({
                     element: particle,
                     vx: Math.cos(angle) * speed,
                     vy: Math.sin(angle) * speed,
                     life: 1.0,
-                    decay: 0.01 + Math.random() * 0.03
+                    decay: 0.006 + Math.random() * 0.015,
+                    color: color
                 });
             }
             
@@ -2101,13 +2104,20 @@
                         p.element.style.left = (currentX + p.vx) + 'px';
                         p.element.style.top = (currentY + p.vy) + 'px';
                         
-                        p.vy += 0.08;
+                        // 重力效果
+                        p.vy += 0.12;
                         
                         p.element.style.opacity = p.life;
                         
-                        const size = 6 * p.life;
+                        const size = 10 * p.life;
                         p.element.style.width = size + 'px';
                         p.element.style.height = size + 'px';
+                        
+                        // 閃爍效果
+                        if (Math.random() < 0.08) {
+                            const glow = 25 + Math.random() * 20;
+                            p.element.style.boxShadow = `0 0 ${glow}px ${p.color}, 0 0 ${glow * 2}px ${p.color}`;
+                        }
                     } else {
                         if (p.element.parentNode) {
                             container.removeChild(p.element);
@@ -2132,7 +2142,9 @@
             }
             
             const container = document.getElementById('fireworks-container');
-            container.innerHTML = '';
+            if (container) {
+                container.innerHTML = '';
+            }
         }
 
         function closeOverlay() {
