@@ -1,0 +1,2868 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>數獨遊戲</title>
+    <style>
+        /* CSS變數定義 - 亮色主題 */
+        :root {
+            --bg-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-color: #2c3e50;
+            --text-secondary: #7f8c8d;
+            --primary: #3498db;
+            --primary-light: #5dade2;
+            --success: #2ecc71;
+            --success-light: #58d68d;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --highlight: #e8f4fd;
+            --border: #bdc3c7;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --disabled: #95a5a6;
+        }
+
+        /* CSS變數定義 - 暗色主題 */
+        .dark-theme {
+            --bg-color: #1a1a2e;
+            --card-bg: #16213e;
+            --text-color: #e6e6e6;
+            --text-secondary: #b0b0b0;
+            --primary: #3498db;
+            --primary-light: #5dade2;
+            --success: #2ecc71;
+            --success-light: #58d68d;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --highlight: #2c3e50;
+            --border: #4a5568;
+            --shadow: rgba(0, 0, 0, 0.3);
+            --disabled: #7f8c8d;
+        }
+
+        /* 藍色主題 */
+        .blue-theme {
+            --bg-color: #0a192f;
+            --card-bg: #172a46;
+            --text-color: #64ffda;
+            --text-secondary: #8892b0;
+            --primary: #00bcd4;
+            --primary-light: #4dd0e1;
+            --success: #00c853;
+            --success-light: #5efc82;
+            --danger: #ff5252;
+            --warning: #ffd740;
+            --highlight: #1d3a5f;
+            --border: #1d3a5f;
+            --shadow: rgba(0, 0, 0, 0.5);
+            --disabled: #546e7a;
+        }
+
+        /* 綠色主題 */
+        .green-theme {
+            --bg-color: #1b3a1b;
+            --card-bg: #2d5a2d;
+            --text-color: #e8f5e8;
+            --text-secondary: #c8e6c9;
+            --primary: #4caf50;
+            --primary-light: #81c784;
+            --success: #2e7d32;
+            --success-light: #4caf50;
+            --danger: #f44336;
+            --warning: #ffb300;
+            --highlight: #1b5e20;
+            --border: #388e3c;
+            --shadow: rgba(0, 0, 0, 0.3);
+            --disabled: #689f38;
+        }
+
+        /* 復古主題 - 設為默認 */
+        .retro-theme {
+            --bg-color: #f0e6d6;
+            --card-bg: #fff8e8;
+            --text-color: #5d4037;
+            --text-secondary: #8d6e63;
+            --primary: #795548;
+            --primary-light: #a1887f;
+            --success: #689f38;
+            --success-light: #9ccc65;
+            --danger: #d32f2f;
+            --warning: #ffa000;
+            --highlight: #ffecb3;
+            --border: #bcaaa4;
+            --shadow: rgba(93, 64, 55, 0.2);
+            --disabled: #bdbdbd;
+        }
+
+        /* 動畫系統 */
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            70% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 5px var(--primary); }
+            50% { box-shadow: 0 0 20px var(--primary), 0 0 30px var(--primary); }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes shakeError {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        @keyframes confetti {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+
+        @keyframes text-flash {
+            0%, 100% { color: var(--primary); transform: scale(1); }
+            50% { color: #f39c12; transform: scale(1.2); }
+        }
+
+        /* 霓虹燈邊框動畫 - 恢復 */
+        @keyframes victory-neon-border {
+            0% {
+                box-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff, 0 0 30px #ff00ff;
+                border-color: #ff00ff;
+            }
+            25% {
+                box-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff;
+                border-color: #00ffff;
+            }
+            50% {
+                box-shadow: 0 0 10px #ffff00, 0 0 20px #ffff00, 0 0 30px #ffff00;
+                border-color: #ffff00;
+            }
+            75% {
+                box-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00;
+                border-color: #00ff00;
+            }
+            100% {
+                box-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 30px #ff0000;
+                border-color: #ff0000;
+            }
+        }
+
+        @keyframes victory-text-pulse {
+            0% { transform: scale(1); text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            100% { transform: scale(1.05); text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+
+        @keyframes victory-glow {
+            0%, 100% { 
+                box-shadow: 0 0 20px rgba(255, 215, 0, 0.5), 
+                          0 0 40px rgba(255, 215, 0, 0.3),
+                          0 0 60px rgba(255, 215, 0, 0.1);
+            }
+            50% { 
+                box-shadow: 0 0 30px rgba(255, 215, 0, 0.8), 
+                          0 0 60px rgba(255, 215, 0, 0.5),
+                          0 0 90px rgba(255, 215, 0, 0.2);
+            }
+        }
+
+        @keyframes victory-float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            33% { transform: translateY(-10px) rotate(-3deg); }
+            66% { transform: translateY(-5px) rotate(3deg); }
+        }
+
+        @keyframes star-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes timer-test-flash {
+            0% { color: var(--primary); }
+            100% { color: #ff0000; }
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(243, 156, 18, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(243, 156, 18, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(243, 156, 18, 0); }
+        }
+
+        @keyframes gradient-flow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(10deg); }
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* 快樂的煙花動畫 */
+        @keyframes happy-firework {
+            0% { transform: translateY(0) scale(0); opacity: 1; }
+            50% { transform: translateY(-100px) scale(1.2); opacity: 0.8; }
+            100% { transform: translateY(-200px) scale(0); opacity: 0; }
+        }
+
+        @keyframes happy-sparkle {
+            0% { transform: rotate(0deg) scale(1); opacity: 1; }
+            100% { transform: rotate(360deg) scale(0); opacity: 0; }
+        }
+
+        * {
+            box-sizing: border-box;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+
+        /* 默認使用復古主題 */
+        body.retro-theme {
+            background-color: #f0e6d6;
+            color: #5d4037;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 1px; /* 改為1px */
+            overflow: hidden;
+        }
+
+        /* 重新設計控制列 */
+        .controls-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        /* 重新設計難度選擇器 */
+        .difficulty-select {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            border: none;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            padding: 12px 15px; /* 增加內邊距以增加高度 */
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            color: white;
+            font-weight: 700;
+            min-width: 110px;
+            height: 44px; /* 設置固定高度 */
+            text-align: center;
+            text-align-last: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .difficulty-select::after {
+            content: '▼';
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.8rem;
+            color: white;
+            pointer-events: none;
+        }
+
+        .difficulty-select:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .difficulty-select:active {
+            transform: translateY(0);
+        }
+
+        .difficulty-select option {
+            text-align: center;
+            font-weight: 600;
+            background: white;
+            color: var(--text-color);
+            padding: 8px;
+        }
+
+        /* 重新設計功能按鈕 - 調整高度與難度選擇器一致 */
+        .text-btn {
+            background: linear-gradient(135deg, var(--card-bg) 0%, rgba(255, 255, 255, 0.8) 100%);
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 12px 15px; /* 增加內邊距以增加高度 */
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            flex: 1;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 70px;
+            height: 44px; /* 設置固定高度，與難度選擇器一致 */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .text-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        .text-btn:active {
+            transform: translateY(0);
+        }
+
+        .text-btn.on {
+            background: linear-gradient(135deg, var(--success) 0%, var(--success-light) 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            padding: 0;
+            margin: 0;
+            line-height: 1;
+            width: 100%;
+        }
+
+        .timer-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 修改計時器樣式 - 移除框線 */
+        .timer {
+            font-weight: 700;
+            font-family: monospace;
+            color: var(--primary);
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.2s;
+            font-size: 0.9rem;
+            /* 移除背景、邊框和陰影 */
+            padding: 4px 0;
+            border-radius: 0;
+            border: none;
+            box-shadow: none;
+            background: transparent;
+        }
+
+        .timer:active {
+            transform: scale(0.95);
+        }
+
+        .pause-btn {
+            font-size: 0.9rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background: var(--card-bg); /* 改為使用皮膚的底色 */
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            padding: 4px;
+        }
+
+        .pause-btn:hover {
+            color: var(--primary);
+            background: rgba(52, 152, 219, 0.1);
+        }
+
+        /* 統計區域容器 */
+        .stats-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 統計區域 - 移除外框 */
+        .stats {
+            display: flex;
+            gap: 15px;
+            padding: 0;
+            border-radius: 0;
+            border: none;
+            box-shadow: none;
+            background: transparent;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stat-icon {
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-icon.error {
+            color: var(--danger);
+            background: rgba(231, 76, 60, 0.1);
+        }
+
+        .stat-icon.hint {
+            color: var(--warning);
+            background: rgba(243, 156, 18, 0.1);
+        }
+
+        .stat-value {
+            font-weight: 700;
+            font-family: monospace;
+            min-width: 20px;
+            text-align: center;
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+
+        /* 設定圖標按鈕 */
+        .settings-icon-btn {
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+            padding: 6px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 8px;
+        }
+
+        .settings-icon-btn:hover {
+            color: var(--primary);
+            background: rgba(52, 152, 219, 0.1);
+            transform: rotate(30deg);
+        }
+
+        #sudoku-board {
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            grid-template-rows: repeat(9, 1fr);
+            width: 100%;
+            aspect-ratio: 1;
+            background-color: var(--border);
+            border: 2px solid var(--border);
+            gap: 1px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px var(--shadow);
+            transition: filter 0.3s ease;
+        }
+
+        #sudoku-board.blurred {
+            filter: blur(4px);
+            pointer-events: none;
+        }
+
+        .cell {
+            background-color: var(--card-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            font-weight: 600;
+            cursor: pointer;
+            position: relative;
+            user-select: none;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .cell.clue, .cell.filled {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .cell.border-right { border-right: 2px solid var(--border); }
+        .cell.border-bottom { border-bottom: 2px solid var(--border); }
+        .cell.highlight-related { background-color: var(--highlight); }
+        .cell.selected { background-color: rgba(52, 152, 219, 0.2) !important; }
+        .cell.highlight-same { background-color: rgba(52, 152, 219, 0.3) !important; }
+        .cell.error { color: var(--danger); }
+
+        /* 動畫效果類 */
+        .cell.pop-in .main-num {
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .cell.pulse {
+            animation: pulseGlow 1s ease-in-out;
+        }
+
+        .cell.shake-error {
+            animation: shakeError 0.4s ease-in-out;
+        }
+
+        .cell.hinting .main-num {
+            animation: text-flash 0.6s ease-in-out 3;
+        }
+
+        .cell.selected {
+            animation: pulseGlow 2s infinite;
+            position: relative;
+            z-index: 1;
+        }
+
+        .cell.selected::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 2px solid var(--primary);
+            border-radius: 4px;
+            animation: pulseGlow 2s infinite;
+            pointer-events: none;
+        }
+
+        .cell .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(52, 152, 219, 0.3);
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+        }
+
+        .notes-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            pointer-events: none;
+            padding: 1px;
+        }
+
+        .note-num {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            font-weight: 500;
+        }
+
+        .note-num.highlighted {
+            background-color: var(--primary-light);
+            color: white;
+            border-radius: 2px;
+            font-weight: 600;
+        }
+
+        .keypad {
+            display: flex;
+            gap: 6px;
+            width: 100%;
+            height: 55px;
+        }
+
+        .numpad-btn {
+            flex: 1;
+            background: linear-gradient(135deg, var(--card-bg) 0%, rgba(255, 255, 255, 0.9) 100%);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .numpad-btn:active {
+            transform: scale(0.95);
+        }
+
+        .numpad-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px var(--shadow);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            border-color: transparent;
+        }
+
+        .numpad-btn:hover .num {
+            color: white;
+        }
+
+        .numpad-btn:hover .count {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .numpad-btn .num {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+            transition: color 0.2s;
+        }
+
+        .numpad-btn .count {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+
+        .numpad-btn.faded {
+            opacity: 0.4;
+        }
+
+        .numpad-btn.suggested {
+            border: 2px solid var(--warning);
+            animation: pulse 1.5s infinite;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        /* 修改所有模態框的位置 - 手機版向上移動四分之一 */
+        .modal {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            text-align: center;
+            max-width: 90%;
+            width: 320px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 2px solid var(--primary);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .modal.slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        /* 設定面板樣式 - 重新設計 */
+        .settings-modal {
+            max-width: 380px;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 25px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            border: 2px solid var(--primary);
+        }
+
+        .settings-modal h2 {
+            margin-top: 0;
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+            color: var(--primary);
+            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .settings-group {
+            margin: 25px 0;
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 18px 0;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .setting-label {
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .setting-label::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: var(--primary);
+            border-radius: 50%;
+        }
+
+        /* 開關按鈕樣式 */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 54px;
+            height: 28px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--border);
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        /* 選擇框樣式 */
+        .settings-select {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 15px;
+            color: var(--text-color);
+            font-size: 0.95rem;
+            min-width: 140px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .settings-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        /* 設定按鈕區域 */
+        .settings-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        .return-btn {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 14px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .return-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+        }
+
+        .return-btn:active {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+        }
+
+        /* 重新設計暫停畫面 */
+        .pause-modal {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            color: #333;
+            border: 3px solid #3498db;
+            width: 320px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        .pause-modal h2 {
+            margin-top: 0;
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            color: #3498db;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .pause-modal p {
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            line-height: 1.5;
+        }
+
+        .pause-modal .modal-btn {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 14px 20px;
+            width: 100%;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+        }
+
+        .pause-modal .modal-btn:hover {
+            background: linear-gradient(135deg, #2980b9 0%, #3498db 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(52, 152, 219, 0.4);
+        }
+
+        .pause-modal .modal-btn:active {
+            transform: translateY(-1px);
+        }
+
+        /* 聖經畫面 */
+        .bible-modal {
+            background: #fff8e8;
+            color: #5d4037;
+            border: 2px solid #8d6e63;
+            width: 90%;
+            max-width: 500px;
+            height: 85vh;
+            max-height: 600px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .bible-modal h2 {
+            margin-top: 0;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #5d4037;
+            border-bottom: 2px solid #8d6e63;
+            padding-bottom: 10px;
+            flex-shrink: 0;
+        }
+
+        .bible-content {
+            text-align: left;
+            line-height: 1.6;
+            font-size: 1rem;
+            color: #4e342e;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            flex-grow: 1;
+            max-height: calc(85vh - 180px);
+        }
+
+        .bible-verse {
+            margin-bottom: 12px;
+            padding: 10px 0;
+            border-bottom: 1px dashed #d7ccc8;
+            padding-left: 2.5em;
+            text-indent: -2.5em;
+            line-height: 1.8;
+        }
+
+        .bible-verse:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .verse-number {
+            font-weight: bold;
+            color: #8d6e63;
+            margin-right: 8px;
+            display: inline-block;
+            width: 2.5em;
+            text-align: right;
+        }
+
+        .bible-modal .modal-btn {
+            background: #8d6e63;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 12px 24px;
+            width: 100%;
+            font-weight: 600;
+            margin-top: 10px;
+            flex-shrink: 0;
+        }
+
+        .bible-modal .modal-btn:hover {
+            background: #6d4c41;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        #fireworks-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            overflow: visible;
+        }
+
+        .firework-particle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* 重新設計勝利畫面 - 恢復霓虹燈效果 */
+        .victory-modal {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border: 4px solid #3498db;
+            color: #fff;
+            border-radius: 20px;
+            padding: 30px 25px;
+            z-index: 10001;
+            min-width: 350px;
+            max-width: 90%;
+            text-align: center;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            /* 恢復霓虹燈邊框動畫 */
+            animation: victory-neon-border 2s infinite alternate;
+        }
+
+        .victory-modal h2 {
+            margin-top: 0;
+            margin-bottom: 25px;
+            color: #fff !important;
+            font-size: 3rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px #3498db, 0 0 20px #3498db;
+            animation: victory-text-pulse 1.5s infinite alternate;
+        }
+
+        .victory-stats {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .victory-stat {
+            display: flex;
+            justify-content: space-between;
+            margin: 12px 0;
+            font-size: 1.1rem;
+            animation: slideIn 0.5s ease-out;
+            animation-fill-mode: backwards;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .victory-stat:last-child {
+            border-bottom: none;
+        }
+
+        .victory-stat-label {
+            color: #ccc;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .victory-stat-label::before {
+            content: '✓';
+            color: #2ecc71;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .victory-stat-value {
+            color: #fff;
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+        }
+
+        .victory-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .victory-buttons button {
+            flex: 1;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.1rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .victory-new-game-btn {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+        }
+
+        .victory-buttons button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+        }
+
+        .victory-buttons button:active {
+            transform: translateY(-1px);
+        }
+
+        /* 勝利畫面上的小裝飾 */
+        .victory-decoration {
+            position: absolute;
+            font-size: 2rem;
+            z-index: 1;
+            animation: victory-float 4s infinite ease-in-out;
+        }
+
+        .victory-decoration:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
+        .victory-decoration:nth-child(2) { top: 20%; right: 15%; animation-delay: 1s; }
+        .victory-decoration:nth-child(3) { bottom: 30%; left: 15%; animation-delay: 2s; }
+        .victory-decoration:nth-child(4) { bottom: 15%; right: 10%; animation-delay: 3s; }
+
+        /* 快樂的煙花效果 */
+        .happy-firework {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            animation: happy-firework 1.5s ease-out forwards;
+        }
+
+        .happy-sparkle {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            animation: happy-sparkle 2s ease-out forwards;
+        }
+
+        /* 點擊計時器測試功能 */
+        .timer.test-mode {
+            animation: timer-test-flash 0.5s infinite alternate;
+        }
+
+        /* 彩紙效果 */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: var(--primary);
+            top: -20px;
+            z-index: 9998;
+            animation: confetti 3s linear forwards;
+            pointer-events: none;
+        }
+
+        @media (max-width: 480px) {
+            .controls-top {
+                gap: 6px;
+                margin-top: 0;
+                margin-bottom: 0;
+            }
+            
+            .difficulty-select {
+                min-width: 100px;
+                padding: 10px 12px;
+                font-size: 0.9rem;
+                height: 40px;
+            }
+            
+            .text-btn {
+                padding: 10px 12px;
+                font-size: 0.85rem;
+                min-width: 60px;
+                height: 40px;
+            }
+            
+            .cell {
+                font-size: 1.4rem;
+            }
+            
+            .numpad-btn .num {
+                font-size: 1.1rem;
+            }
+            
+            .stat-icon {
+                font-size: 0.9rem;
+                width: 22px;
+                height: 22px;
+            }
+            
+            .keypad {
+                height: 50px;
+            }
+            
+            .modal {
+                padding: 20px;
+                width: 280px;
+                margin-top: -15vh; /* 手機版調整 - 向上移動四分之一 */
+            }
+            
+            /* 手機版勝利畫面字體調整 */
+            .victory-modal {
+                min-width: 280px;
+                padding: 25px 20px;
+            }
+            
+            .victory-modal h2 {
+                font-size: 2.5rem;
+                margin-bottom: 20px;
+            }
+            
+            .victory-stats {
+                padding: 15px;
+                margin: 15px 0;
+            }
+            
+            .victory-stat {
+                font-size: 1rem;
+                margin: 10px 0;
+                padding: 8px 0;
+            }
+            
+            .victory-stat-value {
+                font-size: 1.1rem;
+            }
+            
+            .victory-buttons button {
+                padding: 14px;
+                font-size: 1rem;
+            }
+            
+            .pause-modal h2 {
+                font-size: 1.8rem;
+            }
+            
+            .pause-modal p {
+                font-size: 0.9rem;
+            }
+            
+            .pause-modal .modal-btn {
+                font-size: 0.9rem;
+            }
+            
+            .bible-modal {
+                width: 95%;
+                max-width: 95%;
+                padding: 15px;
+                height: 80vh;
+                max-height: 500px;
+            }
+            
+            .bible-modal h2 {
+                font-size: 1.5rem;
+                margin-bottom: 15px;
+            }
+            
+            .bible-content {
+                font-size: 0.95rem;
+                padding: 10px;
+                line-height: 1.5;
+                max-height: calc(80vh - 150px);
+            }
+            
+            .bible-verse {
+                margin-bottom: 10px;
+                padding: 8px 0;
+                padding-left: 2em;
+                text-indent: -2em;
+            }
+            
+            .verse-number {
+                width: 2em;
+            }
+            
+            /* 手機版設定面板 */
+            .settings-modal {
+                padding: 20px;
+                width: 90%;
+            }
+            
+            .setting-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .settings-buttons {
+                flex-direction: column;
+            }
+            
+            .settings-icon-btn {
+                font-size: 1.1rem;
+                padding: 5px;
+            }
+            
+            .timer {
+                padding: 4px 0;
+                font-size: 0.85rem;
+            }
+            
+            .pause-btn {
+                font-size: 0.8rem;
+                width: 22px;
+                height: 22px;
+            }
+        }
+        
+        @media (min-width: 481px) {
+            /* 網頁版 - 恢復在中間 */
+            .modal {
+                margin-top: 0;
+            }
+        }
+        
+        @media (min-width: 600px) {
+            .victory-modal {
+                min-width: 400px;
+                padding: 35px 30px;
+            }
+            
+            .victory-modal h2 {
+                font-size: 3.5rem;
+            }
+        }
+    </style>
+</head>
+<body class="retro-theme">
+    <div class="game-container">
+        <div class="controls-top">
+            <select class="difficulty-select" id="difficulty">
+                <option value="Beginner">入門</option>
+                <option value="Easy" selected>簡單</option>
+                <option value="Medium">中等</option>
+                <option value="Hard">困難</option>
+                <option value="Expert">專家</option>
+            </select>
+            
+            <button class="text-btn" id="btn-new-game">新遊戲</button>
+            <button class="text-btn" id="btn-notes">筆記</button>
+            <button class="text-btn" id="btn-hint">提示</button>
+            <button class="text-btn" id="btn-settings" style="display: none;">設定</button>
+        </div>
+        
+        <div class="status-bar">
+            <div class="timer-container">
+                <div class="timer" id="timer-display">00:00:00</div>
+                <div class="pause-btn" id="pause-btn">⏸️</div>
+            </div>
+            
+            <div class="stats-container">
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-icon error">❌</div>
+                        <span class="stat-value" id="error-stat">00</span>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon hint">💡</div>
+                        <span class="stat-value" id="hint-stat">00</span>
+                    </div>
+                </div>
+                <button class="settings-icon-btn" id="btn-settings-icon" title="設定">⚙️</button>
+            </div>
+        </div>
+        
+        <div id="sudoku-board"></div>
+        
+        <div class="keypad" id="keypad"></div>
+    </div>
+
+    <!-- 煙花容器 -->
+    <div id="fireworks-container"></div>
+
+    <!-- 設定面板 -->
+    <div class="overlay" id="settings-overlay">
+        <div class="modal settings-modal">
+            <h2>遊戲設定</h2>
+            
+            <div class="settings-group">
+                <div class="setting-item">
+                    <span class="setting-label">音效</span>
+                    <label class="switch">
+                        <input type="checkbox" id="sound-toggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <div class="setting-item">
+                    <span class="setting-label">語言</span>
+                    <select class="settings-select" id="language-select">
+                        <option value="zh-TW">繁體中文</option>
+                        <option value="zh-CN">简体中文</option>
+                        <option value="en">English</option>
+                    </select>
+                </div>
+                
+                <div class="setting-item">
+                    <span class="setting-label">主題</span>
+                    <select class="settings-select" id="theme-select">
+                        <option value="light">明亮</option>
+                        <option value="dark">暗黑</option>
+                        <option value="blue">藍色</option>
+                        <option value="green">綠色</option>
+                        <option value="retro" selected>復古</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="settings-buttons">
+                <button class="return-btn" id="return-btn">返回遊戲</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 勝利畫面 -->
+    <div class="overlay" id="victory-overlay">
+        <div class="modal victory-modal" id="victory-modal">
+            <h2 id="victory-title">YOU WIN</h2>
+            
+            <div class="victory-stats">
+                <div class="victory-stat">
+                    <span class="victory-stat-label">難度:</span>
+                    <span class="victory-stat-value" id="victory-difficulty">簡單</span>
+                </div>
+                <div class="victory-stat">
+                    <span class="victory-stat-label">時間:</span>
+                    <span class="victory-stat-value" id="victory-time">00:00:00</span>
+                </div>
+                <div class="victory-stat">
+                    <span class="victory-stat-label">錯誤:</span>
+                    <span class="victory-stat-value" id="victory-errors">00</span>
+                </div>
+                <div class="victory-stat">
+                    <span class="victory-stat-label">提示:</span>
+                    <span class="victory-stat-value" id="victory-hints">00</span>
+                </div>
+            </div>
+            
+            <div class="victory-buttons">
+                <button class="victory-new-game-btn" onclick="closeOverlay()" id="victory-ok-btn">新遊戲</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="overlay" id="pause-overlay">
+        <div class="modal pause-modal">
+            <h2 id="pause-title">遊戲暫停</h2>
+            <p id="pause-text">點擊按鈕繼續</p>
+            <button class="modal-btn" id="resume-btn">繼續</button>
+        </div>
+    </div>
+
+    <div class="overlay" id="bible-overlay">
+        <div class="modal bible-modal">
+            <h2 id="bible-title">詩篇 23篇</h2>
+            <div class="bible-content" id="bible-content"></div>
+            <button class="modal-btn" id="close-bible-btn">關閉</button>
+        </div>
+    </div>
+
+    <script>
+        // ========== 遊戲核心變數 ==========
+        let board = [];
+        let solution = [];
+        let initial = [];
+        let selectedCell = null;
+        let notesEnabled = false;
+        let soundEnabled = true;
+        let gameOver = false;
+        let isPaused = false;
+        let counts = Array(10).fill(9);
+        let timerInterval = null;
+        let timeElapsed = 0;
+        let errorCount = 0;
+        let hintCount = 0;
+        let secretCode = [8,5,8,9,3,8,6,1];
+        let inputSequence = [];
+        let lastInputTime = 0;
+        let isFreshGame = true;
+        let fireworksInterval = null;
+        let fireworksActive = false;
+        
+        // 測試模式變數
+        let timerClickCount = 0;
+        let timerClickStartTime = 0;
+        const TIMER_CLICK_THRESHOLD = 3;
+        const TIMER_CLICK_TIMEOUT = 1500;
+        
+        // 設置管理 - 默認使用復古主題
+        let settings = {
+            soundEnabled: true,
+            language: 'zh-TW',
+            theme: 'retro' // 默認為復古主題
+        };
+        
+        const translations = {
+            'zh-TW': {
+                difficulty: {
+                    'Beginner': '入門',
+                    'Easy': '簡單',
+                    'Medium': '中等',
+                    'Hard': '困難',
+                    'Expert': '專家'
+                },
+                victoryTitle: 'YOU WIN',
+                victoryTime: '時間',
+                victoryErrors: '錯誤',
+                victoryHints: '提示',
+                victoryOK: '新遊戲',
+                pauseTitle: '遊戲暫停',
+                pauseText: '點擊按鈕繼續',
+                resume: '繼續',
+                bibleTitle: '詩篇 23篇',
+                closeBible: '關閉',
+                newGame: '新遊戲',
+                notesMode: '筆記',
+                hint: '提示',
+                settings: '設定',
+                sound: '音效',
+                language: '語言',
+                theme: '主題',
+                settingsTitle: '遊戲設定',
+                returnGame: '返回遊戲',
+                themeOptions: {
+                    'light': '明亮',
+                    'dark': '暗黑',
+                    'blue': '藍色',
+                    'green': '綠色',
+                    'retro': '復古'
+                }
+            },
+            'zh-CN': {
+                difficulty: {
+                    'Beginner': '入门',
+                    'Easy': '简单',
+                    'Medium': '中等',
+                    'Hard': '困难',
+                    'Expert': '专家'
+                },
+                victoryTitle: 'YOU WIN',
+                victoryTime: '时间',
+                victoryErrors: '错误',
+                victoryHints: '提示',
+                victoryOK: '新游戏',
+                pauseTitle: '游戏暂停',
+                pauseText: '点击按钮继续',
+                resume: '继续',
+                bibleTitle: '诗篇 23篇',
+                closeBible: '关闭',
+                newGame: '新游戏',
+                notesMode: '笔记',
+                hint: '提示',
+                settings: '设置',
+                sound: '音效',
+                language: '语言',
+                theme: '主题',
+                settingsTitle: '游戏设置',
+                returnGame: '返回游戏',
+                themeOptions: {
+                    'light': '明亮',
+                    'dark': '暗黑',
+                    'blue': '蓝色',
+                    'green': '绿色',
+                    'retro': '复古'
+                }
+            },
+            'en': {
+                difficulty: {
+                    'Beginner': 'Beginner',
+                    'Easy': 'Easy',
+                    'Medium': 'Medium',
+                    'Hard': 'Hard',
+                    'Expert': 'Expert'
+                },
+                victoryTitle: 'YOU WIN',
+                victoryTime: 'Time',
+                victoryErrors: 'Errors',
+                victoryHints: 'Hints',
+                victoryOK: 'New Game',
+                pauseTitle: 'Game Paused',
+                pauseText: 'Click the button to continue',
+                resume: 'Resume',
+                bibleTitle: 'Psalm 23',
+                closeBible: 'Close',
+                newGame: 'New Game',
+                notesMode: 'Notes',
+                hint: 'Hint',
+                settings: 'Settings',
+                sound: 'Sound',
+                language: 'Language',
+                theme: 'Theme',
+                settingsTitle: 'Game Settings',
+                returnGame: 'Return to Game',
+                themeOptions: {
+                    'light': 'Light',
+                    'dark': 'Dark',
+                    'blue': 'Blue',
+                    'green': 'Green',
+                    'retro': 'Retro'
+                }
+            }
+        };
+
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        // ========== 音效系統 ==========
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new AudioContext();
+            }
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            
+            if (!audioCtx) initAudio();
+            
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            const now = audioCtx.currentTime;
+            
+            switch (type) {
+                case 'correct':
+                    const oscCorrect = audioCtx.createOscillator();
+                    const gainNodeCorrect = audioCtx.createGain();
+                    oscCorrect.connect(gainNodeCorrect);
+                    gainNodeCorrect.connect(audioCtx.destination);
+                    
+                    oscCorrect.type = 'sine';
+                    oscCorrect.frequency.setValueAtTime(1000, now);
+                    gainNodeCorrect.gain.setValueAtTime(0.3, now);
+                    gainNodeCorrect.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                    oscCorrect.start(now);
+                    oscCorrect.stop(now + 0.1);
+                    break;
+                    
+                case 'error':
+                    const oscError = audioCtx.createOscillator();
+                    const gainNodeError = audioCtx.createGain();
+                    oscError.connect(gainNodeError);
+                    gainNodeError.connect(audioCtx.destination);
+                    
+                    oscError.type = 'sawtooth';
+                    oscError.frequency.setValueAtTime(150, now);
+                    oscError.frequency.linearRampToValueAtTime(100, now + 0.3);
+                    gainNodeError.gain.setValueAtTime(0.2, now);
+                    gainNodeError.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    oscError.start(now);
+                    oscError.stop(now + 0.3);
+                    break;
+                    
+                case 'hint':
+                    const oscHint = audioCtx.createOscillator();
+                    const gainNodeHint = audioCtx.createGain();
+                    oscHint.connect(gainNodeHint);
+                    gainNodeHint.connect(audioCtx.destination);
+                    
+                    oscHint.type = 'triangle';
+                    oscHint.frequency.setValueAtTime(300, now);
+                    oscHint.frequency.linearRampToValueAtTime(800, now + 0.3);
+                    gainNodeHint.gain.setValueAtTime(0.1, now);
+                    gainNodeHint.gain.linearRampToValueAtTime(0, now + 0.3);
+                    oscHint.start(now);
+                    oscHint.stop(now + 0.3);
+                    break;
+                    
+                case 'ui':
+                    const oscUI = audioCtx.createOscillator();
+                    const gainNodeUI = audioCtx.createGain();
+                    oscUI.connect(gainNodeUI);
+                    gainNodeUI.connect(audioCtx.destination);
+                    
+                    oscUI.type = 'square';
+                    oscUI.frequency.setValueAtTime(800, now);
+                    gainNodeUI.gain.setValueAtTime(0.05, now);
+                    gainNodeUI.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+                    oscUI.start(now);
+                    oscUI.stop(now + 0.05);
+                    break;
+                    
+                case 'win':
+                    playVictorySound(now);
+                    break;
+            }
+        }
+
+        function playVictorySound(startTime) {
+            if (!audioCtx) initAudio();
+            
+            // 更激勵人心的勝利音樂，使用和弦進行
+            const victoryChords = [
+                { chord: [523.25, 659.25, 783.99], duration: 0.4 }, // C major
+                { chord: [587.33, 739.99, 880.00], duration: 0.4 }, // D minor
+                { chord: [659.25, 830.61, 987.77], duration: 0.4 }, // E minor
+                { chord: [698.46, 880.00, 1046.50], duration: 0.6 }, // F major
+                { chord: [783.99, 987.77, 1174.66], duration: 0.4 }, // G major
+                { chord: [880.00, 1046.50, 1318.51], duration: 0.4 }, // A minor
+                { chord: [987.77, 1174.66, 1480.00], duration: 0.4 }, // B diminished
+                { chord: [1046.50, 1318.51, 1567.98], duration: 0.8 }  // C major (高八度)
+            ];
+            
+            // 先播放一段上行的音階作為前奏
+            const introScale = [523.25, 587.33, 659.25, 698.46, 783.99, 880.00, 987.77, 1046.50];
+            introScale.forEach((freq, index) => {
+                const noteTime = startTime + index * 0.1;
+                playNote(freq, noteTime, 0.08);
+            });
+            
+            // 播放和弦進行
+            victoryChords.forEach((chord, index) => {
+                const chordTime = startTime + 0.8 + index * 0.4;
+                playChord(chord.chord, chordTime, chord.duration);
+                
+                // 在每個和弦上添加一個高音旋律
+                if (index < victoryChords.length - 1) {
+                    const melodyTime = chordTime + 0.2;
+                    playNote(chord.chord[2] * 2, melodyTime, 0.2); // 和弦的最高音
+                }
+            });
+            
+            // 結尾的歡呼音效
+            const finalTime = startTime + 0.8 + victoryChords.length * 0.4;
+            for (let i = 0; i < 5; i++) {
+                const cheerTime = finalTime + i * 0.1;
+                const cheerFreq = 800 + i * 200;
+                playNote(cheerFreq, cheerTime, 0.1);
+            }
+        }
+
+        function playChord(frequencies, time, duration) {
+            if (!audioCtx) initAudio();
+            
+            frequencies.forEach((freq, index) => {
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                
+                oscillator.type = index === 0 ? 'sine' : 'triangle'; // 根音用sine，其他用triangle
+                oscillator.frequency.setValueAtTime(freq, time);
+                
+                gainNode.gain.setValueAtTime(0.08, time);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, time + duration);
+                
+                oscillator.start(time);
+                oscillator.stop(time + duration);
+            });
+        }
+
+        function playNote(frequency, time, duration) {
+            if (!audioCtx) initAudio();
+            
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(frequency, time);
+            
+            gainNode.gain.setValueAtTime(0.1, time);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, time + duration);
+            
+            oscillator.start(time);
+            oscillator.stop(time + duration);
+        }
+
+        // ========== 初始化 ==========
+        document.addEventListener('DOMContentLoaded', () => {
+            createBoardHTML();
+            createKeypadHTML();
+            initSettings();
+            setupEventListeners();
+            setupSettingsEvents();
+            loadBibleContent();
+            updateUIForLanguage();
+            startNewGame();
+        });
+
+        // ========== 設定管理系統 ==========
+        function initSettings() {
+            const savedSettings = localStorage.getItem('sudoku_settings');
+            if (savedSettings) {
+                const parsedSettings = JSON.parse(savedSettings);
+                settings = { ...settings, ...parsedSettings };
+            }
+            
+            applySettings();
+        }
+
+        function saveSettings() {
+            localStorage.setItem('sudoku_settings', JSON.stringify(settings));
+        }
+
+        function applySettings() {
+            soundEnabled = settings.soundEnabled;
+            
+            // 移除所有主題類別，然後添加當前主題
+            document.body.className = '';
+            document.body.classList.add(`${settings.theme}-theme`);
+            
+            // 更新主題選擇器
+            document.getElementById('theme-select').value = settings.theme;
+        }
+
+        // ========== 事件監聽器 ==========
+        function setupEventListeners() {
+            document.getElementById('btn-new-game').addEventListener('click', () => {
+                playSound('ui');
+                startNewGame();
+            });
+            
+            document.getElementById('btn-notes').addEventListener('click', () => {
+                playSound('ui');
+                toggleNotes();
+            });
+            
+            document.getElementById('btn-hint').addEventListener('click', () => {
+                useHint();
+            });
+            
+            document.getElementById('btn-settings-icon').addEventListener('click', () => {
+                showSettings();
+            });
+            
+            document.getElementById('difficulty').addEventListener('change', () => {
+                playSound('ui');
+                startNewGame();
+            });
+            
+            document.getElementById('pause-btn').addEventListener('click', () => {
+                togglePause();
+            });
+            
+            document.getElementById('resume-btn').addEventListener('click', () => {
+                togglePause();
+            });
+            
+            document.getElementById('close-bible-btn').addEventListener('click', () => {
+                closeBibleOverlay();
+            });
+            
+            // 計時器點擊事件
+            document.getElementById('timer-display').addEventListener('click', handleTimerClick);
+        }
+
+        function setupSettingsEvents() {
+            document.getElementById('return-btn').addEventListener('click', () => {
+                hideSettings();
+            });
+            
+            // 設定變更時自動保存
+            document.getElementById('sound-toggle').addEventListener('change', (e) => {
+                settings.soundEnabled = e.target.checked;
+                soundEnabled = settings.soundEnabled;
+                saveSettings();
+                playSound('ui');
+            });
+            
+            document.getElementById('language-select').addEventListener('change', (e) => {
+                settings.language = e.target.value;
+                saveSettings();
+                updateUIForLanguage();
+                playSound('ui');
+            });
+            
+            document.getElementById('theme-select').addEventListener('change', (e) => {
+                settings.theme = e.target.value;
+                saveSettings();
+                applySettings();
+                updateBoardBorders();
+                playSound('ui');
+            });
+        }
+
+        // ========== 遊戲核心功能 ==========
+        function handleTimerClick() {
+            const currentTime = Date.now();
+            
+            if (currentTime - timerClickStartTime > TIMER_CLICK_TIMEOUT) {
+                timerClickCount = 1;
+                timerClickStartTime = currentTime;
+                document.getElementById('timer-display').classList.add('test-mode');
+            } else {
+                timerClickCount++;
+            }
+            
+            if (timerClickCount >= TIMER_CLICK_THRESHOLD) {
+                triggerTestVictory();
+                timerClickCount = 0;
+                document.getElementById('timer-display').classList.remove('test-mode');
+            }
+            
+            setTimeout(() => {
+                document.getElementById('timer-display').classList.remove('test-mode');
+            }, 2000);
+        }
+
+        function triggerTestVictory() {
+            if (gameOver) return;
+            
+            for (let r = 0; r < 9; r++) {
+                for (let c = 0; c < 9; c++) {
+                    board[r][c] = solution[r][c];
+                }
+            }
+            
+            updateBoardUI();
+            updateCounts();
+            checkWin();
+        }
+
+        function updateUIForLanguage() {
+            const t = translations[settings.language];
+            
+            // 更新難度選擇
+            const difficultySelect = document.getElementById('difficulty');
+            const currentDiff = difficultySelect.value;
+            difficultySelect.innerHTML = '';
+            
+            const difficulties = ['Beginner', 'Easy', 'Medium', 'Hard', 'Expert'];
+            difficulties.forEach(diff => {
+                const option = document.createElement('option');
+                option.value = diff;
+                option.textContent = t.difficulty[diff];
+                difficultySelect.appendChild(option);
+            });
+            
+            difficultySelect.value = currentDiff;
+            
+            // 更新按鈕文字
+            document.getElementById('btn-new-game').textContent = t.newGame;
+            document.getElementById('btn-notes').textContent = t.notesMode;
+            document.getElementById('btn-hint').textContent = t.hint;
+            document.getElementById('btn-settings').textContent = t.settings;
+            
+            // 更新勝利畫面
+            document.getElementById('victory-title').textContent = t.victoryTitle;
+            document.getElementById('victory-ok-btn').textContent = t.victoryOK;
+            
+            // 更新暫停畫面
+            document.getElementById('pause-title').textContent = t.pauseTitle;
+            document.getElementById('pause-text').textContent = t.pauseText;
+            document.getElementById('resume-btn').textContent = t.resume;
+            
+            // 更新聖經畫面
+            document.getElementById('bible-title').textContent = t.bibleTitle;
+            document.getElementById('close-bible-btn').textContent = t.closeBible;
+            
+            // 更新設定畫面
+            document.getElementById('settings-overlay').querySelector('h2').textContent = t.settingsTitle;
+            document.getElementById('return-btn').textContent = t.returnGame;
+            
+            const settingLabels = document.querySelectorAll('.setting-label');
+            if (settingLabels.length >= 3) {
+                settingLabels[0].textContent = t.sound;
+                settingLabels[1].textContent = t.language;
+                settingLabels[2].textContent = t.theme;
+            }
+            
+            // 更新主題選項的翻譯
+            const themeSelect = document.getElementById('theme-select');
+            const currentTheme = themeSelect.value;
+            themeSelect.innerHTML = '';
+            
+            const themes = ['light', 'dark', 'blue', 'green', 'retro'];
+            themes.forEach(theme => {
+                const option = document.createElement('option');
+                option.value = theme;
+                option.textContent = t.themeOptions[theme];
+                themeSelect.appendChild(option);
+            });
+            
+            themeSelect.value = currentTheme;
+            
+            // 更新勝利統計標籤 - 修正順序
+            const victoryStatLabels = document.querySelectorAll('.victory-stat-label');
+            if (victoryStatLabels.length >= 4) {
+                // 順序：難度、時間、錯誤、提示
+                victoryStatLabels[0].textContent = '難度:';
+                victoryStatLabels[1].textContent = t.victoryTime + ':';
+                victoryStatLabels[2].textContent = t.victoryErrors + ':';
+                victoryStatLabels[3].textContent = t.victoryHints + ':';
+            }
+            
+            updateStats();
+        }
+
+        function showSettings() {
+            document.getElementById('sound-toggle').checked = settings.soundEnabled;
+            document.getElementById('language-select').value = settings.language;
+            document.getElementById('theme-select').value = settings.theme;
+            
+            document.getElementById('settings-overlay').style.display = 'flex';
+            playSound('ui');
+        }
+
+        function hideSettings() {
+            document.getElementById('settings-overlay').style.display = 'none';
+            playSound('ui');
+        }
+
+        function startNewGame() {
+            stopFireworks();
+            
+            if (isPaused) togglePause();
+            
+            const diff = document.getElementById('difficulty').value;
+            
+            generateSudoku(diff);
+            
+            gameOver = false;
+            selectedCell = null;
+            errorCount = 0;
+            hintCount = 0;
+            
+            inputSequence = [];
+            lastInputTime = 0;
+            isFreshGame = true;
+            
+            timerClickCount = 0;
+            document.getElementById('timer-display').classList.remove('test-mode');
+            
+            updateStats();
+            updateBoardUI();
+            updateCounts();
+            updateHighlighting();
+            
+            startTimer();
+        }
+
+        function createBoardHTML() {
+            const boardEl = document.getElementById('sudoku-board');
+            boardEl.innerHTML = '';
+            
+            for (let r = 0; r < 9; r++) {
+                for (let c = 0; c < 9; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.r = r;
+                    cell.dataset.c = c;
+                    
+                    if ((c + 1) % 3 === 0 && c !== 8) cell.classList.add('border-right');
+                    if ((r + 1) % 3 === 0 && r !== 8) cell.classList.add('border-bottom');
+                    
+                    const notesDiv = document.createElement('div');
+                    notesDiv.className = 'notes-grid';
+                    for(let i = 1; i <= 9; i++) {
+                        const note = document.createElement('div');
+                        note.className = 'note-num';
+                        note.dataset.num = i;
+                        notesDiv.appendChild(note);
+                    }
+                    cell.appendChild(notesDiv);
+                    
+                    const numSpan = document.createElement('span');
+                    numSpan.className = 'main-num';
+                    cell.appendChild(numSpan);
+                    
+                    cell.addEventListener('click', () => selectCell(r, c));
+                    boardEl.appendChild(cell);
+                }
+            }
+        }
+
+        function updateBoardBorders() {
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach(cell => {
+                cell.classList.remove('border-right', 'border-bottom');
+                
+                const r = parseInt(cell.dataset.r);
+                const c = parseInt(cell.dataset.c);
+                
+                if ((c + 1) % 3 === 0 && c !== 8) cell.classList.add('border-right');
+                if ((r + 1) % 3 === 0 && r !== 8) cell.classList.add('border-bottom');
+            });
+        }
+
+        function createKeypadHTML() {
+            const keypad = document.getElementById('keypad');
+            keypad.innerHTML = '';
+            
+            for (let i = 1; i <= 9; i++) {
+                const btn = document.createElement('div');
+                btn.className = 'numpad-btn';
+                btn.id = `btn-num-${i}`;
+                btn.innerHTML = `<div class="num">${i}</div><div class="count">9</div>`;
+                btn.addEventListener('click', () => handleInput(i));
+                keypad.appendChild(btn);
+            }
+        }
+
+        function selectCell(r, c) {
+            if (gameOver || isPaused) return;
+            
+            selectedCell = { r, c };
+            
+            updateHighlighting();
+            
+            playSound('ui');
+        }
+
+        function handleInput(num) {
+            if (gameOver || isPaused) return;
+            
+            checkSecretCode(num);
+            
+            if (!selectedCell) return;
+            
+            const { r, c } = selectedCell;
+            
+            if (initial[r][c] !== 0 || (board[r][c] !== 0 && board[r][c] === solution[r][c])) return;
+            
+            const cellDiv = getCellDiv(r, c);
+            
+            if (num === solution[r][c]) {
+                board[r][c] = num;
+                
+                // 添加漣漪效果
+                const ripple = document.createElement('div');
+                ripple.className = 'ripple';
+                ripple.style.width = '20px';
+                ripple.style.height = '20px';
+                ripple.style.left = '50%';
+                ripple.style.top = '50%';
+                ripple.style.marginLeft = '-10px';
+                ripple.style.marginTop = '-10px';
+                cellDiv.appendChild(ripple);
+                setTimeout(() => {
+                    if (ripple.parentNode) cellDiv.removeChild(ripple);
+                }, 600);
+                
+                // 彈入效果
+                cellDiv.classList.add('pop-in');
+                setTimeout(() => cellDiv.classList.remove('pop-in'), 300);
+                
+                // 脈衝效果
+                cellDiv.classList.add('pulse');
+                setTimeout(() => cellDiv.classList.remove('pulse'), 1000);
+                
+                playSound('correct');
+                updateBoardUI();
+                updateCounts();
+                updateHighlighting();
+                checkWin();
+                
+                isFreshGame = false;
+            } else {
+                // 錯誤動畫
+                cellDiv.classList.add('shake-error');
+                setTimeout(() => cellDiv.classList.remove('shake-error'), 400);
+                
+                playSound('error');
+                errorCount++;
+                updateStats();
+                
+                cellDiv.querySelector('.main-num').innerText = num;
+                cellDiv.classList.add('error');
+                cellDiv.classList.add('filled');
+                
+                setTimeout(() => {
+                    cellDiv.classList.remove('error');
+                    cellDiv.querySelector('.main-num').innerText = board[r][c] === 0 ? '' : board[r][c];
+                    cellDiv.classList.remove('filled');
+                    if (notesEnabled) updateNotes();
+                }, 500);
+                
+                isFreshGame = false;
+            }
+        }
+
+        function checkSecretCode(num) {
+            if (!isFreshGame) return;
+            
+            const currentTime = Date.now();
+            
+            if (currentTime - lastInputTime > 3000) {
+                inputSequence = [];
+            }
+            
+            inputSequence.push(num);
+            lastInputTime = currentTime;
+            
+            if (inputSequence.length > secretCode.length) {
+                inputSequence.shift();
+            }
+            
+            if (inputSequence.length === secretCode.length) {
+                let isMatch = true;
+                
+                for (let i = 0; i < secretCode.length; i++) {
+                    if (inputSequence[i] !== secretCode[i]) {
+                        isMatch = false;
+                        break;
+                    }
+                }
+                
+                if (isMatch) {
+                    showBibleOverlay();
+                    inputSequence = [];
+                    isFreshGame = false;
+                }
+            }
+        }
+
+        function showBibleOverlay() {
+            document.getElementById('bible-overlay').style.display = 'flex';
+            playSound('ui');
+        }
+
+        function closeBibleOverlay() {
+            document.getElementById('bible-overlay').style.display = 'none';
+            playSound('ui');
+        }
+
+        function loadBibleContent() {
+            const bibleContent = document.getElementById('bible-content');
+            
+            const psalms23 = [
+                { number: 1, text: "耶和華是我的牧者，我必不致缺乏。" },
+                { number: 2, text: "他使我躺臥在青草地上，領我在可安歇的水邊。" },
+                { number: 3, text: "他使我的靈魂甦醒，為自己的名引導我走義路。" },
+                { number: 4, text: "我雖然行過死蔭的幽谷，也不怕遭害，因為你與我同在；你的杖，你的竿，都安慰我。" },
+                { number: 5, text: "在我敵人面前，你為我擺設筵席；你用油膏了我的頭，使我的福杯滿溢。" },
+                { number: 6, text: "我一生一世必有恩惠慈愛隨著我；我且要住在耶和華的殿中，直到永遠。" }
+            ];
+            
+            bibleContent.innerHTML = '';
+            
+            psalms23.forEach(verse => {
+                const verseElement = document.createElement('div');
+                verseElement.className = 'bible-verse';
+                
+                const verseNumber = document.createElement('span');
+                verseNumber.className = 'verse-number';
+                verseNumber.textContent = verse.number + '.';
+                
+                const verseText = document.createElement('span');
+                verseText.textContent = verse.text;
+                
+                verseElement.appendChild(verseNumber);
+                verseElement.appendChild(verseText);
+                
+                bibleContent.appendChild(verseElement);
+            });
+        }
+
+        function updateStats() {
+            document.getElementById('error-stat').innerText = errorCount.toString().padStart(2, '0');
+            document.getElementById('hint-stat').innerText = hintCount.toString().padStart(2, '0');
+            
+            document.getElementById('victory-errors').innerText = errorCount.toString().padStart(2, '0');
+            document.getElementById('victory-hints').innerText = hintCount.toString().padStart(2, '0');
+        }
+
+        function startTimer() {
+            stopTimer();
+            timeElapsed = 0;
+            isPaused = false;
+            updateTimerDisplay();
+            
+            timerInterval = setInterval(() => {
+                if (!isPaused && !gameOver) {
+                    timeElapsed++;
+                    updateTimerDisplay();
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        function updateTimerDisplay() {
+            const hours = Math.floor(timeElapsed / 3600);
+            const minutes = Math.floor((timeElapsed % 3600) / 60);
+            const seconds = timeElapsed % 60;
+            const text = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            document.getElementById('timer-display').innerText = text;
+            document.getElementById('victory-time').innerText = text;
+            return text;
+        }
+
+        function togglePause() {
+            isPaused = !isPaused;
+            
+            if (isPaused) {
+                document.getElementById('pause-overlay').style.display = 'flex';
+                document.getElementById('sudoku-board').classList.add('blurred');
+                playSound('ui');
+            } else {
+                document.getElementById('pause-overlay').style.display = 'none';
+                document.getElementById('sudoku-board').classList.remove('blurred');
+                playSound('ui');
+            }
+        }
+
+        function generateSudoku(difficulty) {
+            board = Array.from({ length: 9 }, () => Array(9).fill(0));
+            
+            fillDiagonal();
+            
+            solveSudoku(board);
+            
+            solution = JSON.parse(JSON.stringify(board));
+            
+            let attempts = 0;
+            switch(difficulty) {
+                case 'Beginner': attempts = 20; break;
+                case 'Easy': attempts = 30; break;
+                case 'Medium': attempts = 40; break;
+                case 'Hard': attempts = 50; break;
+                case 'Expert': attempts = 58; break;
+            }
+            
+            initial = JSON.parse(JSON.stringify(solution));
+            
+            board = Array.from({ length: 9 }, () => Array(9).fill(0));
+            
+            let removed = 0;
+            while (removed < attempts) {
+                let row = Math.floor(Math.random() * 9);
+                let col = Math.floor(Math.random() * 9);
+                
+                if (initial[row][col] !== 0) {
+                    initial[row][col] = 0;
+                    removed++;
+                }
+            }
+        }
+
+        function fillDiagonal() {
+            for (let i = 0; i < 9; i += 3) {
+                fillBox(i, i);
+            }
+        }
+
+        function fillBox(row, col) {
+            let num;
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    do {
+                        num = Math.floor(Math.random() * 9) + 1;
+                    } while (!isSafeInBox(row, col, num));
+                    
+                    board[row + i][col + j] = num;
+                }
+            }
+        }
+
+        function isSafeInBox(rowStart, colStart, num) {
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    if (board[rowStart + i][colStart + j] === num) return false;
+                }
+            }
+            return true;
+        }
+
+        function solveSudoku(grid) {
+            for (let row = 0; row < 9; row++) {
+                for (let col = 0; col < 9; col++) {
+                    if (grid[row][col] === 0) {
+                        for (let num = 1; num <= 9; num++) {
+                            if (isSafe(grid, row, col, num)) {
+                                grid[row][col] = num;
+                                
+                                if (solveSudoku(grid)) return true;
+                                
+                                grid[row][col] = 0;
+                            }
+                        }
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        function isSafe(grid, row, col, num) {
+            for (let x = 0; x < 9; x++) {
+                if (grid[row][x] === num) return false;
+            }
+            
+            for (let x = 0; x < 9; x++) {
+                if (grid[x][col] === num) return false;
+            }
+            
+            let startRow = row - row % 3;
+            let startCol = col - col % 3;
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    if (grid[i + startRow][j + startCol] === num) return false;
+                }
+            }
+            return true;
+        }
+
+        function useHint() {
+            if (gameOver || isPaused) return;
+            
+            const emptyCells = [];
+            for (let r = 0; r < 9; r++) {
+                for (let c = 0; c < 9; c++) {
+                    if (board[r][c] === 0 && initial[r][c] === 0) {
+                        emptyCells.push({r, c});
+                    }
+                }
+            }
+            
+            if (emptyCells.length === 0) return;
+            
+            hintCount++;
+            updateStats();
+            
+            const { r, c } = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+            const correctNum = solution[r][c];
+            
+            board[r][c] = correctNum;
+            updateBoardUI();
+            
+            const cellDiv = getCellDiv(r, c);
+            cellDiv.classList.add('hinting');
+            setTimeout(() => {
+                if (cellDiv) cellDiv.classList.remove('hinting');
+            }, 2000);
+            
+            playSound('hint');
+            
+            updateCounts();
+            updateHighlighting();
+            
+            checkWin();
+            
+            isFreshGame = false;
+        }
+
+        function getCellDiv(r, c) {
+            return document.querySelector(`.cell[data-r='${r}'][data-c='${c}']`);
+        }
+
+        function updateBoardUI() {
+            for (let r = 0; r < 9; r++) {
+                for (let c = 0; c < 9; c++) {
+                    const cell = getCellDiv(r, c);
+                    
+                    const val = board[r][c] !== 0 ? board[r][c] : initial[r][c];
+                    
+                    cell.querySelector('.main-num').innerText = val === 0 ? '' : val;
+                    
+                    cell.className = 'cell';
+                    
+                    if ((c + 1) % 3 === 0 && c !== 8) cell.classList.add('border-right');
+                    if ((r + 1) % 3 === 0 && r !== 8) cell.classList.add('border-bottom');
+                    
+                    if (initial[r][c] !== 0) {
+                        cell.classList.add('clue');
+                    } else if (board[r][c] !== 0) {
+                        cell.classList.add('filled');
+                    }
+                }
+            }
+            
+            if (notesEnabled) updateNotes();
+            else clearNotes();
+        }
+
+        function toggleNotes() {
+            if (isPaused) return;
+            
+            notesEnabled = !notesEnabled;
+            
+            const notesBtn = document.getElementById('btn-notes');
+            if (notesEnabled) {
+                notesBtn.classList.add('on');
+            } else {
+                notesBtn.classList.remove('on');
+            }
+            
+            if (notesEnabled) updateNotes();
+            else clearNotes();
+            
+            updateHighlighting();
+        }
+
+        function clearNotes() {
+            document.querySelectorAll('.note-num').forEach(el => el.innerText = '');
+        }
+
+        function updateNotes() {
+            for (let r = 0; r < 9; r++) {
+                for (let c = 0; c < 9; c++) {
+                    const cell = getCellDiv(r, c);
+                    const noteContainer = cell.querySelector('.notes-grid');
+                    
+                    noteContainer.querySelectorAll('.note-num').forEach(n => n.innerText = '');
+                    
+                    if (board[r][c] === 0 && initial[r][c] === 0) {
+                        let combinedGrid = JSON.parse(JSON.stringify(initial));
+                        for (let i = 0; i < 9; i++) {
+                            for (let j = 0; j < 9; j++) {
+                                if (board[i][j] !== 0) combinedGrid[i][j] = board[i][j];
+                            }
+                        }
+                        
+                        for (let n = 1; n <= 9; n++) {
+                            if (isSafe(combinedGrid, r, c, n)) {
+                                noteContainer.querySelector(`.note-num[data-num='${n}']`).innerText = n;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        function updateHighlighting() {
+            document.querySelectorAll('.cell').forEach(c => {
+                c.classList.remove('selected', 'highlight-related', 'highlight-same');
+            });
+            
+            document.querySelectorAll('.note-num').forEach(n => {
+                n.classList.remove('highlighted');
+            });
+            
+            document.querySelectorAll('.numpad-btn').forEach(b => {
+                b.classList.remove('suggested');
+            });
+            
+            if (!selectedCell) return;
+            
+            const { r, c } = selectedCell;
+            
+            const val = board[r][c] !== 0 ? board[r][c] : initial[r][c];
+            
+            const startRow = r - r % 3;
+            const startCol = c - c % 3;
+            
+            for (let i = 0; i < 9; i++) {
+                getCellDiv(r, i).classList.add('highlight-related');
+                getCellDiv(i, c).classList.add('highlight-related');
+            }
+            
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    getCellDiv(startRow + i, startCol + j).classList.add('highlight-related');
+                }
+            }
+            
+            getCellDiv(r, c).classList.add('selected');
+            
+            if (val !== 0) {
+                for (let i = 0; i < 9; i++) {
+                    for (let j = 0; j < 9; j++) {
+                        const cellVal = board[i][j] !== 0 ? board[i][j] : initial[i][j];
+                        if (cellVal === val) {
+                            getCellDiv(i, j).classList.add('highlight-same');
+                        }
+                    }
+                }
+                
+                if (notesEnabled) {
+                    document.querySelectorAll(`.note-num[data-num='${val}']`).forEach(noteEl => {
+                        if (noteEl.innerText === String(val)) {
+                            noteEl.classList.add('highlighted');
+                        }
+                    });
+                }
+            }
+            
+            if (board[r][c] === 0 && initial[r][c] === 0) {
+                checkGroupAndHighlight(r, c);
+            }
+        }
+
+        function checkGroupAndHighlight(r, c) {
+            let rowValues = [];
+            for (let i = 0; i < 9; i++) {
+                const val = board[r][i] !== 0 ? board[r][i] : initial[r][i];
+                rowValues.push(val);
+            }
+            let rowMissing = findMissingNumber(rowValues);
+            if (rowMissing !== -1) {
+                highlightSuggestedNumber(rowMissing);
+                return;
+            }
+            
+            let colValues = [];
+            for (let i = 0; i < 9; i++) {
+                const val = board[i][c] !== 0 ? board[i][c] : initial[i][c];
+                colValues.push(val);
+            }
+            let colMissing = findMissingNumber(colValues);
+            if (colMissing !== -1) {
+                highlightSuggestedNumber(colMissing);
+                return;
+            }
+            
+            let boxValues = [];
+            const startRow = r - r % 3;
+            const startCol = c - c % 3;
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    const val = board[startRow + i][startCol + j] !== 0 ? 
+                                board[startRow + i][startCol + j] : 
+                                initial[startRow + i][startCol + j];
+                    boxValues.push(val);
+                }
+            }
+            let boxMissing = findMissingNumber(boxValues);
+            if (boxMissing !== -1) {
+                highlightSuggestedNumber(boxMissing);
+                return;
+            }
+        }
+
+        function findMissingNumber(values) {
+            let missing = 0;
+            let count = 0;
+            for (let i = 1; i <= 9; i++) {
+                if (!values.includes(i)) {
+                    missing = i;
+                    count++;
+                }
+            }
+            return count === 1 ? missing : -1;
+        }
+
+        function highlightSuggestedNumber(num) {
+            const btn = document.getElementById(`btn-num-${num}`);
+            if (btn) {
+                btn.classList.add('suggested');
+            }
+        }
+
+        function updateCounts() {
+            counts.fill(9);
+            
+            for (let r = 0; r < 9; r++) {
+                for (let c = 0; c < 9; c++) {
+                    const val = board[r][c] !== 0 ? board[r][c] : initial[r][c];
+                    if (val !== 0) counts[val]--;
+                }
+            }
+            
+            for (let i = 1; i <= 9; i++) {
+                const btn = document.getElementById(`btn-num-${i}`);
+                btn.querySelector('.count').innerText = counts[i];
+                
+                if (counts[i] <= 0) {
+                    btn.classList.add('faded');
+                } else {
+                    btn.classList.remove('faded');
+                }
+            }
+        }
+
+        function checkWin() {
+            let isFull = true;
+            
+            for (let r = 0; r < 9; r++) {
+                for (let c = 0; c < 9; c++) {
+                    const cellVal = board[r][c] !== 0 ? board[r][c] : initial[r][c];
+                    if (cellVal !== solution[r][c]) {
+                        isFull = false;
+                        break;
+                    }
+                }
+                if (!isFull) break;
+            }
+            
+            if (isFull) {
+                gameOver = true;
+                stopTimer();
+                playSound('win');
+                
+                // 獲取當前難度
+                const diff = document.getElementById('difficulty').value;
+                const t = translations[settings.language];
+                const difficultyText = t.difficulty[diff] || diff;
+                
+                // 勝利畫面資料更新 - 修正順序
+                document.getElementById('victory-difficulty').innerText = difficultyText;
+                document.getElementById('victory-time').innerText = updateTimerDisplay();
+                document.getElementById('victory-errors').innerText = errorCount.toString().padStart(2, '0');
+                document.getElementById('victory-hints').innerText = hintCount.toString().padStart(2, '0');
+                
+                showVictoryScreen();
+                
+                document.querySelectorAll('.cell').forEach(c => {
+                    c.classList.remove('selected', 'highlight-related', 'highlight-same');
+                });
+            }
+        }
+
+        function showVictoryScreen() {
+            document.getElementById('victory-overlay').style.display = 'flex';
+            
+            // 啟動煙火效果
+            startHappyFireworks();
+            
+            // 添加快樂的裝飾元素
+            const modal = document.getElementById('victory-modal');
+            
+            // 移除已有的裝飾元素
+            document.querySelectorAll('.victory-decoration').forEach(el => el.remove());
+            
+            // 添加新的快樂裝飾元素
+            const decorations = ['🎉', '🎊', '🏆', '✨'];
+            decorations.forEach((deco, index) => {
+                const decoEl = document.createElement('div');
+                decoEl.className = 'victory-decoration';
+                decoEl.textContent = deco;
+                decoEl.style.animationDelay = `${index * 0.5}s`;
+                modal.appendChild(decoEl);
+            });
+        }
+
+        // ========== 快樂的煙花效果系統 ==========
+        function startHappyFireworks() {
+            const container = document.getElementById('fireworks-container');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            fireworksActive = true;
+            
+            const fireworkCount = 30; // 減少數量但增加快樂感
+            const colors = ['#FF6B35', '#FFCC00', '#4CAF50', '#3498DB', '#9B59B6', '#E74C3C', '#1ABC9C', '#F39C12'];
+            
+            let created = 0;
+            fireworksInterval = setInterval(() => {
+                if (created >= fireworkCount) {
+                    clearInterval(fireworksInterval);
+                    fireworksInterval = null;
+                    // 持續發射一些額外的煙花
+                    setTimeout(() => {
+                        createRandomHappyFirework();
+                    }, 500);
+                    return;
+                }
+                
+                createRandomHappyFirework();
+                
+                created++;
+            }, 150); // 更快的發射間隔
+        }
+
+        function createRandomHappyFirework() {
+            const colors = ['#FF6B35', '#FFCC00', '#4CAF50', '#3498DB', '#9B59B6', '#E74C3C', '#1ABC9C', '#F39C12'];
+            const x = Math.random() * window.innerWidth;
+            const y = Math.random() * (window.innerHeight * 0.5) + (window.innerHeight * 0.3);
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            
+            createHappyFirework(x, y, color);
+        }
+
+        function createHappyFirework(x, y, color) {
+            const container = document.getElementById('fireworks-container');
+            if (!container) return;
+            
+            // 創建主煙花
+            const firework = document.createElement('div');
+            firework.className = 'happy-firework';
+            firework.style.left = x + 'px';
+            firework.style.top = y + 'px';
+            firework.style.backgroundColor = color;
+            firework.style.boxShadow = `0 0 20px ${color}, 0 0 40px ${color}`;
+            container.appendChild(firework);
+            
+            // 煙花爆炸效果
+            setTimeout(() => {
+                createSparkles(x, y - 100, color);
+                if (firework.parentNode) {
+                    container.removeChild(firework);
+                }
+            }, 800);
+        }
+
+        function createSparkles(x, y, color) {
+            const container = document.getElementById('fireworks-container');
+            if (!container) return;
+            
+            const sparkleCount = 12; // 減少數量但增加快樂感
+            
+            for (let i = 0; i < sparkleCount; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'happy-sparkle';
+                sparkle.style.left = x + 'px';
+                sparkle.style.top = y + 'px';
+                sparkle.style.backgroundColor = color;
+                
+                // 隨機方向
+                const angle = (i / sparkleCount) * Math.PI * 2;
+                const distance = 30 + Math.random() * 40;
+                const targetX = Math.cos(angle) * distance;
+                const targetY = Math.sin(angle) * distance;
+                
+                sparkle.style.transform = `translate(${targetX}px, ${targetY}px)`;
+                container.appendChild(sparkle);
+                
+                // 移除火花
+                setTimeout(() => {
+                    if (sparkle.parentNode) {
+                        container.removeChild(sparkle);
+                    }
+                }, 2000);
+            }
+        }
+
+        function stopFireworks() {
+            fireworksActive = false;
+            
+            if (fireworksInterval) {
+                clearInterval(fireworksInterval);
+                fireworksInterval = null;
+            }
+            
+            const container = document.getElementById('fireworks-container');
+            if (container) {
+                container.innerHTML = '';
+            }
+        }
+
+        function closeOverlay() {
+            document.getElementById('victory-overlay').style.display = 'none';
+            stopFireworks();
+            
+            startNewGame();
+        }
+    </script>
+</body>
+</html>
