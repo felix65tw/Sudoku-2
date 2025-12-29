@@ -363,17 +363,6 @@
             transform: translateY(0);
         }
 
-        /* 手機版按下效果 - 更明顯的視覺反饋 */
-        @media (max-width: 480px) {
-            .text-btn:active {
-                transform: scale(0.95);
-                background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-                color: white;
-                border-color: transparent;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            }
-        }
-
         .text-btn.on {
             background: linear-gradient(135deg, var(--success) 0%, var(--success-light) 100%);
             color: white;
@@ -678,25 +667,6 @@
             }
             
             .numpad-btn:hover .count {
-                color: rgba(255, 255, 255, 0.8);
-            }
-        }
-
-        /* 手機版數字鍵盤按下效果 - 更明顯的視覺反饋 */
-        @media (max-width: 480px) {
-            .numpad-btn:active {
-                transform: scale(0.92);
-                background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-                border-color: transparent;
-                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-            }
-            
-            .numpad-btn:active .num {
-                color: white;
-                transform: scale(1.1);
-            }
-            
-            .numpad-btn:active .count {
                 color: rgba(255, 255, 255, 0.8);
             }
         }
@@ -1233,6 +1203,7 @@
             pointer-events: none;
         }
 
+        /* 手機版按鍵效果 - 修正為與網頁版滑鼠懸停相同顏色 */
         @media (max-width: 480px) {
             .controls-top {
                 gap: 6px;
@@ -1254,6 +1225,15 @@
                 height: 40px;
             }
             
+            /* 手機版功能按鈕按下效果 - 與網頁版滑鼠懸停相同 */
+            .text-btn:active {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+                background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+                color: white;
+                border-color: transparent;
+            }
+            
             .cell {
                 font-size: 1.4rem;
             }
@@ -1270,6 +1250,23 @@
             
             .keypad {
                 height: 50px;
+            }
+            
+            /* 手機版數字鍵盤按下效果 - 與網頁版滑鼠懸停相同 */
+            .numpad-btn:active {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px var(--shadow);
+                background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+                border-color: transparent;
+            }
+            
+            .numpad-btn:active .num {
+                color: white;
+                transform: scale(1.05);
+            }
+            
+            .numpad-btn:active .count {
+                color: rgba(255, 255, 255, 0.8);
             }
             
             .modal {
@@ -1352,14 +1349,13 @@
                 width: 2em;
             }
             
-            /* 手機版設定面板 - 修改：不要分成兩行 */
+            /* 手機版設定面板 */
             .settings-modal {
                 padding: 20px;
                 width: 90%;
             }
             
             .setting-item {
-                /* 保持一行排列，不換行 */
                 flex-direction: row;
                 align-items: center;
                 gap: 15px;
@@ -1385,6 +1381,15 @@
                 font-size: 0.8rem;
                 width: 22px;
                 height: 22px;
+            }
+            
+            /* 手機版設定和返回按鈕按下效果 */
+            .settings-icon-btn:active,
+            .return-btn:active,
+            .modal-btn:active,
+            .victory-new-game-btn:active {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             }
         }
         
