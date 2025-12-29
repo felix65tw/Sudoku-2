@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>數獨遊戲</title>
+    <title>Sudoku</title>
     <style>
         /* CSS變數定義 - 亮色主題 */
         :root {
@@ -1501,19 +1501,19 @@
             
             <div class="victory-stats">
                 <div class="victory-stat">
-                    <span class="victory-stat-label">難度:</span>
+                    <span class="victory-stat-label" id="victory-stat-difficulty">難度:</span>
                     <span class="victory-stat-value" id="victory-difficulty">簡單</span>
                 </div>
                 <div class="victory-stat">
-                    <span class="victory-stat-label">時間:</span>
+                    <span class="victory-stat-label" id="victory-stat-time">時間:</span>
                     <span class="victory-stat-value" id="victory-time">00:00:00</span>
                 </div>
                 <div class="victory-stat">
-                    <span class="victory-stat-label">錯誤:</span>
+                    <span class="victory-stat-label" id="victory-stat-errors">錯誤:</span>
                     <span class="victory-stat-value" id="victory-errors">00</span>
                 </div>
                 <div class="victory-stat">
-                    <span class="victory-stat-label">提示:</span>
+                    <span class="victory-stat-label" id="victory-stat-hints">提示:</span>
                     <span class="victory-stat-value" id="victory-hints">00</span>
                 </div>
             </div>
@@ -1589,9 +1589,10 @@
                     'Expert': '專家'
                 },
                 victoryTitle: 'YOU WIN',
-                victoryTime: '時間',
-                victoryErrors: '錯誤',
-                victoryHints: '提示',
+                victoryDifficulty: '難度:',
+                victoryTime: '時間:',
+                victoryErrors: '錯誤:',
+                victoryHints: '提示:',
                 victoryOK: '新遊戲',
                 pauseTitle: '遊戲暫停',
                 pauseText: '點擊按鈕繼續',
@@ -1624,9 +1625,10 @@
                     'Expert': '专家'
                 },
                 victoryTitle: 'YOU WIN',
-                victoryTime: '时间',
-                victoryErrors: '错误',
-                victoryHints: '提示',
+                victoryDifficulty: '难度:',
+                victoryTime: '时间:',
+                victoryErrors: '错误:',
+                victoryHints: '提示:',
                 victoryOK: '新游戏',
                 pauseTitle: '游戏暂停',
                 pauseText: '点击按钮继续',
@@ -1659,9 +1661,10 @@
                     'Expert': 'Expert'
                 },
                 victoryTitle: 'YOU WIN',
-                victoryTime: 'Time',
-                victoryErrors: 'Errors',
-                victoryHints: 'Hints',
+                victoryDifficulty: 'Difficulty:',
+                victoryTime: 'Time:',
+                victoryErrors: 'Errors:',
+                victoryHints: 'Hints:',
                 victoryOK: 'New Game',
                 pauseTitle: 'Game Paused',
                 pauseText: 'Click the button to continue',
@@ -2026,6 +2029,12 @@
             // 更新勝利畫面
             document.getElementById('victory-title').textContent = t.victoryTitle;
             document.getElementById('victory-ok-btn').textContent = t.victoryOK;
+            
+            // 更新勝利畫面標題
+            document.getElementById('victory-stat-difficulty').textContent = t.victoryDifficulty;
+            document.getElementById('victory-stat-time').textContent = t.victoryTime;
+            document.getElementById('victory-stat-errors').textContent = t.victoryErrors;
+            document.getElementById('victory-stat-hints').textContent = t.victoryHints;
             
             // 更新暫停畫面
             document.getElementById('pause-title').textContent = t.pauseTitle;
